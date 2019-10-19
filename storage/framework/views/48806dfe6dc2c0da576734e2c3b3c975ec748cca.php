@@ -1,9 +1,36 @@
-<link rel="stylesheet" type="text/css" href="date/date.css" />
+<link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+<!------ Include the above in your HEAD tag ---------->
+
+<link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
-<script type="text/javascript" src="date/date.js"></script>
+<script src="//maxcdn.bootstrapcdn.com/bootstrap/3.3.0/js/bootstrap.min.js"></script>
+<script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
 <script>
     var siteUrl = '<?php echo e(URL::to('/')); ?>';
     var search = '';
+    function dateSearch(val)
+    {
+        search = val;
+        $.ajaxSetup({
+            headers: {
+                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+            }
+        });
+        $.ajax({
+            type: "GET",
+            url: siteUrl + "/searchResult",
+            data:{
+                dateTime: search,
+            },
+            success: function (data)
+            {
+                //console.log(data);
+                $('#allDataSearch').html(data)
+            },error: function (xhr, status, error) {
+                console.log(error);
+            }
+        })
+    }
     $(document).ready(function()
     {
         $('#search').keyup(function () {
@@ -28,28 +55,6 @@
                         console.log(error);
                     }
                 })
-            }
-        });
-        $('#searchFilter').click(function () {
-            var from_date = $('#from_date').val();
-            if(from_date !== '' )
-            {
-                $.ajax({
-                    type: "GET",
-                    url: siteUrl + "/searchResult",
-                    data:{from_date:from_date},
-                    success: function (data)
-                    {
-                        //console.log(data);
-                        $('#searchResult').html(data)
-                    },error: function (xhr, status, error) {
-                        console.log(error);
-                    }
-                })
-            }
-            else
-            {
-                alert('Both Date is required');
             }
         });
         $(document).on('click', '.pagination a', function (e) {
@@ -84,6 +89,13 @@
                     }
                 });
         });
+        $( "#datepicker" ).datepicker({
+            dateFormat : 'yy-mm-dd',
+            changeMonth : true,
+            changeYear : true,
+            yearRange: '-100y:c+nn',
+            maxDate: '-1d'
+        });
     });
 </script>
 <?php $__env->startSection('content'); ?>
@@ -98,9 +110,9 @@
                                 <input type="text" id="search" class="form-control" placeholder="Search">
                             </div>
                             <div class="col-md-3">
-                                <label for="search"></label>
-                                <div class="input-group input-daterange">
-                                    <input placeholder="date" type="text" name="from_date" id="from_date" readonly class="form-control" />
+                                <div class="form-group">
+                                    <label></label>
+                                    <input type="text" onchange="dateSearch($(this).val())" id="datepicker" class="form-control" placeholder="Choose">
                                 </div>
                             </div>
                             <div class="col-md-3">

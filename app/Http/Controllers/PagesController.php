@@ -202,7 +202,7 @@ class PagesController extends Controller
                     $query->select('id')
                         ->from('social_post_groups')
                         ->where('social_post_groups.name', 'like', '%' . $search . '%');
-                })->paginate(10);
+                })->paginate(30);
             $data = view('pages.search',['posts'=>$posts])->render();
             return $data;
         }
@@ -211,7 +211,7 @@ class PagesController extends Controller
             $search =  $request->dataFilter;
             if ($search == 'all')
             {
-                $post = BufferPosting::with('groupInfo.socialGroup','accountInfo.user')->paginate(20);
+                $post = BufferPosting::with('groupInfo.socialGroup','accountInfo.user')->paginate(30);
                 $data = view('pages.search',['posts'=>$post])->render();
                 return $data;
             }
@@ -223,12 +223,21 @@ class PagesController extends Controller
                         $query->select('id')
                             ->from('social_post_groups')
                             ->where('social_post_groups.type', '=' , $search );
-                    })->paginate(10);
+                    })->paginate(30);
             }
             $data = view('pages.search',['posts'=>$posts])->render();
             return $data;
         }
+        elseif ($request->has('dateTime'))
+        {
+            //$search =   date('Y-m-d H:i:s', strtotime($request->dateTime));
+            $posts = BufferPosting::with('groupInfo.socialGroup','accountInfo.user')
+                ->where('created_at', 'like', '%' . $request->dateTime . '%')
+                ->paginate(50);
+            $data = view('pages.search',['posts'=>$posts])->render();
+            return $data;
 
+        }
         else if($request->has('page'))
         {
             abort(404);
